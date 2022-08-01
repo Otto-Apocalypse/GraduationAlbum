@@ -1,0 +1,73 @@
+package ${package.Controller};
+
+import io.swagger.annotations.Api;
+import org.springframework.web.bind.annotation.*;
+import com.example.springboot.common.Result;
+import javax.annotation.Resource;
+import java.util.List;
+
+import $!{package.Service}.$!{table.serviceName};
+import ${package.Entity}.${entity};
+
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+
+/**
+ * <p>
+ * $!{table.comment} 前端控制器
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+
+#if(${restControllerStyle})
+@RestController
+#else
+@Controller
+#end
+@Api(tags = "接口")
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+#if(${kotlin})
+class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
+#else
+#if(${superControllerClass})
+public class ${table.controllerName} extends ${superControllerClass} {
+#else
+public class ${table.controllerName} {
+#end
+
+    @Resource
+    private ${table.serviceName} ${table.entityPath}Service;
+
+    @PostMapping("/save")
+    public Result save(@RequestBody ${entity} ${table.entityPath}) {
+        return Result.success(${table.entityPath}Service.saveOrUpdate(${table.entityPath}));
+    }
+
+    @DeleteMapping("/del/{id}")
+    public Result delete(@PathVariable Integer id) {
+        return Result.success(${table.entityPath}Service.removeById(id));
+    }
+
+    @GetMapping("/all")
+    public Result findAll() {
+        return Result.success(${table.entityPath}Service.list());
+    }
+
+    @GetMapping("/{id}")
+    public Result findOne(@PathVariable Integer id) {
+        return Result.success(${table.entityPath}Service.getById(id));
+    }
+
+    @GetMapping("/page")
+    public Result findPage(@RequestParam(defaultValue = "1") Integer pageNum,
+                           @RequestParam(defaultValue = "10") Integer pageSize,
+                           @RequestParam(defaultValue = "username") String optionValue,
+                           @RequestParam(defaultValue = "") String username){
+        return Result.success(${table.entityPath}Service.findPage(pageNum, pageSize, optionValue, username));
+        }
+}
+
+#end
